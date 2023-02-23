@@ -87,7 +87,17 @@ const mockedBills = {
 export default {
   bills() {
     return mockedBills
-    //return {}
   },
+
+  users() { 
+    return {
+      create(user) { return Promise.resolve({email: 'test@test.fr', password: 'test'}) },
+    }
+  },
+
+  login(user) {
+    return Promise.resolve({email: user.email, password: user.password})
+  }
+
 }
 

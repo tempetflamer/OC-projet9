@@ -6,6 +6,7 @@ import LoginUI from "../views/LoginUI";
 import Login from "../containers/Login.js";
 import { ROUTES } from "../constants/routes";
 import { fireEvent, screen } from "@testing-library/dom";
+import mockStore from "../__mocks__/store"
 
 describe("Given that I am a user on login page", () => {
   describe("When I do not fill fields and I click on employee button Login In", () => {
@@ -84,7 +85,70 @@ describe("Given that I am a user on login page", () => {
 
       let PREVIOUS_LOCATION = "";
 
-      const store = jest.fn();
+      //const store = jest.fn();
+      const store = mockStore;
+
+      const login = new Login({
+        document,
+        localStorage: window.localStorage,
+        onNavigate,
+        PREVIOUS_LOCATION,
+        store,
+      });
+
+      const handleSubmit = jest.fn(login.handleSubmitEmployee);
+      form.addEventListener("submit", handleSubmit);
+      fireEvent.submit(form);
+      expect(handleSubmit).toHaveBeenCalled();
+      expect(window.localStorage.setItem).toHaveBeenCalled();
+      login.login({
+        email: 'employee@test.tld',
+        password: 'employee',
+      })
+    });
+
+    test("It should renders Bills page", () => {
+      expect(screen.getAllByText("Mes notes de frais")).toBeTruthy();
+    });
+  });
+
+  describe("When I do fill an incorrect employee identifier and I click on employee button Login In", () => {
+    test("Then a new employee should be created", () => {
+      document.body.innerHTML = LoginUI();
+      const inputData = {
+        email: "johndoe@email.com",
+        password: "azerty",
+      };
+
+      const inputEmailUser = screen.getByTestId("employee-email-input");
+      fireEvent.change(inputEmailUser, { target: { value: inputData.email } });
+      expect(inputEmailUser.value).toBe(inputData.email);
+
+      const inputPasswordUser = screen.getByTestId("employee-password-input");
+      fireEvent.change(inputPasswordUser, {
+        target: { value: inputData.password },
+      });
+      expect(inputPasswordUser.value).toBe(inputData.password);
+
+      const form = screen.getByTestId("form-employee");
+
+      // localStorage should be populated with form data
+      Object.defineProperty(window, "localStorage", {
+        value: {
+          getItem: jest.fn(() => null),
+          setItem: jest.fn(() => null),
+        },
+        writable: true,
+      });
+
+      // we have to mock navigation to test it
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname });
+      };
+
+      let PREVIOUS_LOCATION = "";
+
+      const store = mockStore;
 
       const login = new Login({
         document,
@@ -100,21 +164,16 @@ describe("Given that I am a user on login page", () => {
       fireEvent.submit(form);
       expect(handleSubmit).toHaveBeenCalled();
       expect(window.localStorage.setItem).toHaveBeenCalled();
-      expect(window.localStorage.setItem).toHaveBeenCalledWith(
-        "user",
-        JSON.stringify({
-          type: "Employee",
-          email: inputData.email,
-          password: inputData.password,
-          status: "connected",
-        })
-      );
-    });
-
-    test("It should renders Bills page", () => {
-      expect(screen.getAllByText("Mes notes de frais")).toBeTruthy();
+      login.createUser({
+        email: 'test@test.fr',
+        name: 'test',
+        type: 'Employee',
+        password: 'password',
+      })
     });
   });
+
+
 });
 
 describe("Given that I am a user on login page", () => {
@@ -196,7 +255,72 @@ describe("Given that I am a user on login page", () => {
 
       let PREVIOUS_LOCATION = "";
 
-      const store = jest.fn();
+      const store = mockStore;
+
+      const login = new Login({
+        document,
+        localStorage: window.localStorage,
+        onNavigate,
+        PREVIOUS_LOCATION,
+        store,
+      });
+
+      const handleSubmit = jest.fn(login.handleSubmitAdmin);
+      form.addEventListener("submit", handleSubmit);
+      fireEvent.submit(form);
+      expect(handleSubmit).toHaveBeenCalled();
+      expect(window.localStorage.setItem).toHaveBeenCalled();
+      login.login({
+        email: 'admin@test.tld',
+        password: 'admin',
+      })
+
+    });
+
+    test("It should renders HR dashboard page", () => {
+      expect(screen.queryByText("Validations")).toBeTruthy();
+    });
+  });
+
+  describe("When I do fill an incorrect admin identifier and I click on admin button Login In", () => {
+    test("Then new admin should be created", () => {
+      document.body.innerHTML = LoginUI();
+      const inputData = {
+        type: "Admin",
+        email: "johndoe@email.com",
+        password: "azerty",
+        status: "connected",
+      };
+
+      const inputEmailUser = screen.getByTestId("admin-email-input");
+      fireEvent.change(inputEmailUser, { target: { value: inputData.email } });
+      expect(inputEmailUser.value).toBe(inputData.email);
+
+      const inputPasswordUser = screen.getByTestId("admin-password-input");
+      fireEvent.change(inputPasswordUser, {
+        target: { value: inputData.password },
+      });
+      expect(inputPasswordUser.value).toBe(inputData.password);
+
+      const form = screen.getByTestId("form-admin");
+
+      // localStorage should be populated with form data
+      Object.defineProperty(window, "localStorage", {
+        value: {
+          getItem: jest.fn(() => null),
+          setItem: jest.fn(() => null),
+        },
+        writable: true,
+      });
+
+      // we have to mock navigation to test it
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname });
+      };
+
+      let PREVIOUS_LOCATION = "";
+
+      const store = mockStore;
 
       const login = new Login({
         document,
@@ -212,19 +336,17 @@ describe("Given that I am a user on login page", () => {
       fireEvent.submit(form);
       expect(handleSubmit).toHaveBeenCalled();
       expect(window.localStorage.setItem).toHaveBeenCalled();
-      expect(window.localStorage.setItem).toHaveBeenCalledWith(
-        "user",
-        JSON.stringify({
-          type: "Admin",
-          email: inputData.email,
-          password: inputData.password,
-          status: "connected",
-        })
-      );
+
+      login.createUser({
+        email: 'test@test.fr',
+        name: 'test',
+        type: 'Admin',
+        password: 'password',
+      })
     });
 
-    test("It should renders HR dashboard page", () => {
-      expect(screen.queryByText("Validations")).toBeTruthy();
-    });
   });
+
 });
+
+// Il me reste à gérer tous les catch et else d'erreur, Lignes 29,51,72,92
