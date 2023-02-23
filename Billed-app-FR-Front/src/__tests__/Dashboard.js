@@ -48,6 +48,7 @@ describe('Given I am connected as an Admin', () => {
   })
 
   describe('When I am on Dashboard page and I click on arrow', () => {
+    //ça ne couvre pas non plus
     test('Then, tickets list should be unfolding, and cards should appear', async () => {
 
       const onNavigate = (pathname) => {
@@ -88,6 +89,51 @@ describe('Given I am connected as an Admin', () => {
       expect(handleShowTickets3).toHaveBeenCalled()
       await waitFor(() => screen.getByTestId(`open-billBeKy5Mo4jkmdfPGYpTxZ`) )
       expect(screen.getByTestId(`open-billBeKy5Mo4jkmdfPGYpTxZ`)).toBeTruthy()
+    })
+    //catch ajouté // L.141 - 142 // ne couvre tj pas
+    test('Then, an error occur when tickets list should be unfolding, and cards appear without data', async () => {
+
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname })
+      }
+
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+      window.localStorage.setItem('user', JSON.stringify({
+        type: 'Admin'
+      }))
+
+      const dashboard = new Dashboard({
+        document, onNavigate, store: null, bills:bills, localStorage: window.localStorage
+      })
+      document.body.innerHTML = DashboardUI({ data: { bills } })
+
+      const handleShowTickets1 = jest.fn((e) => dashboard.handleShowTickets(e, '', 1))
+      const handleShowTickets2 = jest.fn((e) => dashboard.handleShowTickets(e, '', 2))
+      const handleShowTickets3 = jest.fn((e) => dashboard.handleShowTickets(e, '', 3))
+
+      const icon1 = screen.getByTestId('arrow-icon1')
+      const icon2 = screen.getByTestId('arrow-icon2')
+      const icon3 = screen.getByTestId('arrow-icon3')
+
+
+      icon1.addEventListener('click', handleShowTickets1)
+      userEvent.click(icon1)
+      expect(handleShowTickets1).toHaveBeenCalled()
+      icon2.addEventListener('click', handleShowTickets2)
+      userEvent.click(icon2)
+      expect(handleShowTickets2).toHaveBeenCalled()
+      icon3.addEventListener('click', handleShowTickets3)
+      userEvent.click(icon3)
+      expect(handleShowTickets3).toHaveBeenCalled()
+
+      let billInProgress = screen.getByTestId("status-bills-container1")
+      let billValided = screen.getByTestId("status-bills-container2")
+      let billRefused = screen.getByTestId("status-bills-container3")
+
+      expect(billInProgress.childElementCount).toBe(0)
+      expect(billValided.childElementCount).toBe(0)
+      expect(billRefused.childElementCount).toBe(0)
+
     })
   })
 
