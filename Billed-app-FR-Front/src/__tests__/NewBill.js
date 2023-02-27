@@ -89,10 +89,18 @@ describe("Given I am connected as an employee", () => {
     })
 
     describe("And I submit a valid bill form", () => {
-      test('then a bill is created', async  () => {
+      test('then a bill is created', async () => {
         document.body.innerHTML = NewBillUI()
         setLocalStorageMock();
         jest.mock("../app/store", () => mockStore)
+
+        const newBill = new NewBill({ document, onNavigate, store, localStorage: window.localStorage })
+        const imgFile = new File(['test.txt'], 'test.txt', { type: 'text/txt' })
+        const inputFile = screen.getByTestId('file')
+        const handleChangeFile = jest.fn((e) => newBill.handleChangeFile(e))
+        inputFile.addEventListener('change', handleChangeFile)
+        fireEvent.change(inputFile, { target: { files: [imgFile] } })
+
 
         const createBill = jest.fn(mockStore.bills().create);
         const updateBill = jest.fn(mockStore.bills().update);
@@ -103,10 +111,10 @@ describe("Given I am connected as an employee", () => {
         expect(fileUrl).toBe("https://localhost:3456/images/test.jpg");
 
 
-        const newBill = await updateBill();
+        const newBillUpdate = await updateBill();
         expect(updateBill).toHaveBeenCalledTimes(1);
 
-        expect(newBill).toEqual({
+        expect(newBillUpdate).toEqual({
           id: "47qAXb6fIm2zOKkLzMro",
           vat: "80",
           fileUrl: "https://firebasestorage.googleapis.com/v0/b/billable-677b6.a…f-1.jpg?alt=media&token=c1640e12-a24b-4b11-ae52-529112e9602a",
@@ -122,9 +130,9 @@ describe("Given I am connected as an employee", () => {
           pct: 20
         });
 
-      let searchURL = ROUTES_PATH.Bills;
-          searchURL = searchURL.slice(-5)
-          expect(searchURL).toBe('bills');
+        let searchURL = ROUTES_PATH.Bills;
+        searchURL = searchURL.slice(-5)
+        expect(searchURL).toBe('bills');
       })
     })
 
@@ -154,7 +162,7 @@ describe("Given I am connected as an employee", () => {
         let searchURL = ROUTES_PATH.NewBill;
         searchURL = searchURL.slice(-3)
         expect(searchURL).toBe('new');
-        
+
       })
     })
   })
