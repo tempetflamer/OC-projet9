@@ -3,6 +3,7 @@
  */
 
 import { screen, waitFor, fireEvent } from "@testing-library/dom"
+import userEvent from '@testing-library/user-event'
 import BillsUI from "../views/BillsUI.js"
 import Bills from "../containers/Bills.js"
 import { bills } from "../fixtures/bills.js"
@@ -26,7 +27,6 @@ jest.mock("../app/store", () => mockStore)
 describe("Given I am connected as an employee", () => {
   describe("When I am on Bills Page", () => {
     test("Then bill icon in vertical layout should be highlighted", async () => {
-
       Object.defineProperty(window, 'localStorage', { value: localStorageMock })
       window.localStorage.setItem('user', JSON.stringify({
         type: 'Employee'
@@ -38,12 +38,10 @@ describe("Given I am connected as an employee", () => {
       window.onNavigate(ROUTES_PATH.Bills)
       await waitFor(() => screen.getByTestId('icon-window'))
       const windowIcon = screen.getByTestId('icon-window')
-      //to-do write expect expression
       expect(windowIcon.classList.contains('active-icon')).toBeTruthy()
-
     })
 
-    test("Then the Bills page should be rendered", () => { // a paufiner
+    test("Then the Bills page should be rendered", () => {
       document.body.innerHTML = BillsUI({ data: bills })
       expect(screen.getAllByText("Mes notes de frais")).toBeTruthy()
       const table = document.getElementsByTagName("table")
@@ -61,31 +59,15 @@ describe("Given I am connected as an employee", () => {
 
   describe('when I click on the icon eye', () => {
     test('Then it open a modal', () => {
-      setLocalStorageMock();
-      //document.body.innerHTML = BillsUI({ data: { bills } })
-      document.body.innerHTML = BillsUI({ data: bills })
-      const testBill = new Bills({ document, onNavigate, store: null, localStorage: window.localStorageM }) // window.localStorageMock
-      //const testBill = new Bills({ document, onNavigate, store: null, bills, localStorage: window.localStorage })
-      //const modaleFile = document.getElementById("modaleFile");
-      //$.fn.modal = jest.fn(() => modaleFile.classList.add("show"));
+      const testBill = new Bills({ document, onNavigate, store: mockStore, localStorage: window.localStorageMock })
+      $.fn.modal = jest.fn();
       const eyeIcons = screen.getAllByTestId('icon-eye')
       expect(eyeIcons).toBeTruthy()
-
       const eyeIcon = eyeIcons[0]
-      const handleClickIconEye = jest.fn((e) => testBill.handleClickIconEye(e.target))
-      //jest.fn((e) => dashboard.handleRefuseSubmit(e, bills[0]))
-      //const handleShowTickets1 = jest.fn((e) => dashboard.handleShowTickets(e, bills, 1))
-      //const handleClickIconEye = jest.fn(testBill.handleClickIconEye)
-      eyeIcon.addEventListener('click', handleClickIconEye)
-      fireEvent.click(eyeIcon)
-      //expect(handleClickIconEye).toBeCalled()
-      //expect(screen.getByText('Justificatif')).toBeTruthy()
 
-      /*
-       Given I am connected as an employee › when I click on the icon eye › Then it open a modal
-      TypeError: $(...).modal is not a function
-    */
-
+      const handleClickIconEye = jest.fn(testBill.handleClickIconEye)
+      eyeIcon.addEventListener('click', () => handleClickIconEye(eyeIcon))
+      userEvent.click(eyeIcon)
     })
   })
 
@@ -125,7 +107,7 @@ describe("Given I am connected as an employee", () => {
       expect(screen.getByText(formatStatus(bill.status))).toBeTruthy()
       expect(screen.getByText(formatDate(bill.date))).toBeTruthy()
     })
-    describe('when the retrieve data faile', () => {
+    describe('when the retrieve data fail', () => {
       beforeEach(() => {
         jest.spyOn(mockStore, "bills")
         setLocalStorageMock();
@@ -162,11 +144,8 @@ describe("Given I am connected as an employee", () => {
       })
   
     })
-    // L 75-76
     describe('when I access to the bill page', () => {
-
       test('Then return an unformated date', async() => {
-
         const badBill  = (await mockStore.bills().list())[0]
         badBill.date = "2002-02-02"
         const bill = { list: () =>  Promise.resolve([badBill]) }
@@ -174,9 +153,7 @@ describe("Given I am connected as an employee", () => {
 
         window.onNavigate(ROUTES_PATH.Bills)
         await new Promise(process.nextTick)
-  
         expect(screen.findAllByText('2002-02-02')).toBeTruthy
-
       })
 
     })
