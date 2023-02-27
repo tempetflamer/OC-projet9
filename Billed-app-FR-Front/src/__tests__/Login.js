@@ -112,8 +112,68 @@ describe("Given that I am a user on login page", () => {
     });
   });
 
+  // error this.store, return null in login function L.72
+  describe("When I click on employee button Login In with correct format fields and the store fail to be charged", () => {
+    test("Then nothing happens", async () => {
+      document.body.innerHTML = LoginUI();
+      const inputData = {
+        email: "johndoe@email.com",
+        password: "azerty",
+      };
+
+      const inputEmailUser = screen.getByTestId("employee-email-input");
+      fireEvent.change(inputEmailUser, { target: { value: inputData.email } });
+      expect(inputEmailUser.value).toBe(inputData.email);
+
+      const inputPasswordUser = screen.getByTestId("employee-password-input");
+      fireEvent.change(inputPasswordUser, {
+        target: { value: inputData.password },
+      });
+      expect(inputPasswordUser.value).toBe(inputData.password);
+
+      const form = screen.getByTestId("form-employee");
+
+      // localStorage should be populated with form data
+      Object.defineProperty(window, "localStorage", {
+        value: {
+          getItem: jest.fn(() => null),
+          setItem: jest.fn(() => null),
+        },
+        writable: true,
+      });
+
+      // we have to mock navigation to test it
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname });
+      };
+
+      let PREVIOUS_LOCATION = "";
+
+      const login = new Login({
+        document,
+        localStorage: window.localStorage,
+        onNavigate,
+        PREVIOUS_LOCATION,
+        store: null,
+      });
+
+      const handleSubmit = jest.fn(login.handleSubmitEmployee);
+      login.login({
+        email: 'employee@test.tld',
+        password: 'employee',
+      })
+      login.login = jest.fn().mockResolvedValue({});
+            form.addEventListener("submit", handleSubmit);
+            fireEvent.submit(form);
+            expect(handleSubmit).toHaveBeenCalled();
+    expect(window.localStorage.setItem).toHaveBeenCalled();
+
+
+    });
+  });
+
   describe("When I do fill an incorrect employee identifier and I click on employee button Login In", () => {
-    test("Then a new employee should be created", () => {
+    test("Then a new employee should be created", async () => {
       document.body.innerHTML = LoginUI();
       const inputData = {
         email: "johndoe@email.com",
@@ -170,6 +230,68 @@ describe("Given that I am a user on login page", () => {
         type: 'Employee',
         password: 'password',
       })
+
+    });
+  });
+
+  // error this.store, return null in createUser function L.92
+  describe("When I click on employee button Login In with an incorrect employee identifier and the store fail to be charged", () => {
+    test("Then nothing happens", async () => {
+      document.body.innerHTML = LoginUI();
+      const inputData = {
+        email: "johndoe@email.com",
+        password: "azerty",
+      };
+
+      const inputEmailUser = screen.getByTestId("employee-email-input");
+      fireEvent.change(inputEmailUser, { target: { value: inputData.email } });
+      expect(inputEmailUser.value).toBe(inputData.email);
+
+      const inputPasswordUser = screen.getByTestId("employee-password-input");
+      fireEvent.change(inputPasswordUser, {
+        target: { value: inputData.password },
+      });
+      expect(inputPasswordUser.value).toBe(inputData.password);
+
+      const form = screen.getByTestId("form-employee");
+
+      // localStorage should be populated with form data
+      Object.defineProperty(window, "localStorage", {
+        value: {
+          getItem: jest.fn(() => null),
+          setItem: jest.fn(() => null),
+        },
+        writable: true,
+      });
+
+      // we have to mock navigation to test it
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname });
+      };
+
+      let PREVIOUS_LOCATION = "";
+
+      const login = new Login({
+        document,
+        localStorage: window.localStorage,
+        onNavigate,
+        PREVIOUS_LOCATION,
+        store: null,
+      });
+
+      const handleSubmit = jest.fn(login.handleSubmitEmployee);
+      login.login = jest.fn().mockResolvedValue({});
+      form.addEventListener("submit", handleSubmit);
+      fireEvent.submit(form);
+      expect(handleSubmit).toHaveBeenCalled();
+      expect(window.localStorage.setItem).toHaveBeenCalled();
+      login.createUser({
+        email: 'test@test.fr',
+        name: 'test',
+        type: 'Employee',
+        password: 'password',
+      })
+
     });
   });
 
@@ -348,5 +470,3 @@ describe("Given that I am a user on login page", () => {
   });
 
 });
-
-// Il me reste à gérer tous les catch et else d'erreur, Lignes 29,51,72,92
