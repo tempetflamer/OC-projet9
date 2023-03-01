@@ -53,7 +53,7 @@ S’inspirer du plan E2E que Garance a déjà rédigé sur le parcours administr
 
 
 ## Mise en place du projet
-Étant sur windows, j'ai installé win-node-env `npm i -g win-node-env` et fait des modifications supplémentaire dans le package.json pour le fonctionnement de l'application, les étapes de l'instalaltion se trouve ci-dessous.
+Étant sur windows, j'ai installé win-node-env `npm i -g win-node-env` et fait des modifications supplémentaires dans le package.json pour le fonctionnement de l'application, les étapes de l'instalaltion se trouve ci-dessous.
 
 ### Back-end
 
@@ -116,7 +116,7 @@ Lancer le projet (site) :
 ```
 live-server
 ```
-Le site ce lancera automatiquement sur le port 8080 => http://127.0.0.1:8080/
+Le site ce lancera automatiquement sur le port 8080 => `http://127.0.0.1:8080/`
 
 
 ### Identifiants
@@ -133,7 +133,7 @@ utilisateur : employee@company.tld
 mot de passe : employee
 ```
 
-### Lancer les tests
+### Lancer les tests (Front-end)
 
 Lancer tous les tests
 ```
@@ -145,19 +145,27 @@ Lancer un seul test (Login.js)
 npm run test Login
 ```
 
-Comment voir la couverture de test ?
+Page de couverture de test :
 `http://127.0.0.1:8080/coverage/lcov-report/`
 
 
-## rapports Jest
+Vous retrouverez également les étapes d'installation données dans leurs dossiers respectifs [Back](https://github.com/tempetflamer/OC-projet9/tree/main/Billed-app-FR-Back) & [Front](https://github.com/tempetflamer/OC-projet9/tree/main/Billed-app-FR-Front).
 
-### Rapport de test :
+
+## Livrables
+
+### Plan de test End-to-End
+[E2E Employé](https://github.com/tempetflamer/Assets/blob/main/oc/oc9/Lecroq_Nicolas_plan_test_022023.pdf?raw=true)
+
+### Rapport de test Jest :
 ![Test](https://github.com/tempetflamer/Assets/blob/main/oc/oc9/tests_report.jpg?raw=true)
 
-### Rapports de couverture :
+### Rapports de couverture Jest :
 ![Couverture - Tous fichiers](https://github.com/tempetflamer/Assets/blob/main/oc/oc9/coverage_report_all_files.jpg?raw=true)
 
 ![Couverture - Conteneurs](https://raw.githubusercontent.com/tempetflamer/Assets/main/oc/oc9/coverage_report_containers.jpg?raw=true)
+
+![Couverture - Vues](https://raw.githubusercontent.com/tempetflamer/Assets/main/oc/oc9/coverage_report_views.jpg)
 
 
 ## Compétences évaluées
